@@ -1,0 +1,396 @@
+composit key ตาราง bridge
+
+```sql
+SELECT firstname, lastname, company FROM customers;
+-- comment
+/* comment
+	comment*/ 
+```
+
+```sql
+SELECT 
+	firstname, 
+    lastname, 
+   	firstname || ' ' || lastname,
+FROM customers;
+```
+
+```sql
+SELECT 
+	firstname, 
+    lastname, 
+   	100,
+    "Punpun"
+FROM customers;
+```
+
+```sql
+SELECT 
+	firstname, 
+    lastname AS last
+FROM customers;
+```
+
+```sql
+SELECT
+		invoicedate,
+    billingaddress,
+    total,
+    total + (total*0.07) AS total_incl_vat
+FROM invoices;
+```
+
+```sql
+SELECT
+	invoicedate,
+    billingaddress,
+    total,
+    ROUND (total + (total*0.07),2) AS total_incl_vat
+FROM invoices;
+```
+
+```sql
+SELECT
+	invoicedate,
+    STRFTIME("%Y", invoicedate) AS year,
+    STRFTIME("%m", invoicedate) AS month,
+    STRFTIME("%d", invoicedate) AS day,
+    STRFTIME("%Y%m", invoicedate) AS monthid
+FROM invoices
+WHERE monthid = "200910"
+```
+
+```sql
+SELECT
+	firstname,
+    lastname,
+    email
+FROM customers
+WHERE country = "USA";
+```
+
+ถ้าจำใน string ไม่ได้ ให้ lower 
+
+```sql
+SELECT
+	firstname,
+    lastname,
+    email
+FROM customers
+WHERE LOWER(country) = "united kingdom";
+```
+
+เลือก หลาย ๆ ประเทศ แทนที่จะเขียน country =””, OR “” OR
+
+```sql
+SELECT
+	firstname,
+    lastname,
+    email
+FROM customers
+WHERE country in ("USA", "Brazil", "Belgium", "France")
+```
+
+สร้าง Table ใหม่ จากการจัดกลุ่มประเทศ 
+
+```sql
+CREATE TABLE eu_customers AS
+  SELECT firstname, lastname, email
+  FROM customers
+  WHERE country in ("Belgium", "France", "Italy");
+```
+
+```sql
+DROP TABLE eu_customers; --กู้คืนยาก ระวังก่อนจะ drop
+```
+
+ทำได้แค่ใน SQLite (ปกติโค้ดจะรันจากล่างขึ้นบน)
+
+```sql
+SELECT
+	name,
+    composer,
+    bytes/(1024*1024) AS MB
+FROM tracks
+WHERE MB >= 8
+```
+
+Like คือ psttern matching (ใช้กับ % บ่อย)
+
+```sql
+SELECT
+	name,
+    composer,
+    bytes/(1024*1024) AS MB
+FROM tracks
+WHERE MB >= 8 AND composer LIKE 'M%';
+-- '%a%', '%n', 'Smith%'
+-- WHERE composer IS NULL 
+-- WHERE coposer IS NOT NULL
+```
+
+Between 
+
+```sql
+SELECT
+	name,
+    composer,
+    bytes/(1024*1024) AS MB
+FROM tracks
+WHERE MB >= 8 BETWEEN 9 AND 10;
+--inclusive รวม 9 กับ 10 มาด้วย
+```
+
+นับจำนวนทั้งหมดที่อยู่ใน table …-- composer มีค่า NULL เลยไม่เท่ากับ *
+
+```sql
+SELECT
+	COUNT(*),
+	COUNT(name),
+	COUNT(composer),
+	COUNT(name) - COUNT(composer) AS null_in_composer_field
+FROM tracks;
+```
+
+Aggregate Functions 
+
+```sql
+SELECT
+	COUNT (*)  AS total_songs,
+  ROUND(AVG(bytes),2) AS avg_bytes,
+  SUM(bytes) AS sum_bytes,
+  MIN(bytes) AS min_bytes,
+  MAX(bytes) As max_bytes
+FROM tracks;
+```
+
+If-Else
+
+```sql
+SELECT
+	bytes/(1024*1024) AS mb,
+    CASE
+    	WHEN bytes/(1024*1024) >=8 THEN "Large"
+    	WHEN bytes/(1024*1024) >=3 THEN "Medium"
+        ELSE "Small"
+    END AS segment
+FROM tracks;
+```
+
+นับ segment (ที่ตั้งชื่อ)
+
+```sql
+SELECT
+	bytes/(1024*1024) AS mb,
+    CASE
+    	WHEN bytes/(1024*1024) >=8 THEN "Large"
+    	WHEN bytes/(1024*1024) >=3 THEN "Medium"
+        ELSE "Small"
+    END AS segment,
+    COUNT(*) AS num_songs
+FROM tracks
+GROUP By segment;
+```
+
+Clean ค่า NULL
+
+```sql
+SELECT 
+	company,
+   	COALESCE(company, "B2C") AS clean_company,
+    CASE
+    	WHEN company IS NULL THEn "B2C"
+   		ELSE "B2B"
+    END as segment
+FROM customers;
+```
+
+COUNT
+
+```sql
+SELECT 
+    CASE
+    	WHEN company IS NULL THEn "B2C"
+   		ELSE "B2B"
+    END as segment,
+    COUNT (*) as num_customer
+FROM customers
+GROUP by segment;
+```
+
+```sql
+SELECT 
+    CASE
+    	WHEN company IS NULL THEn "B2C"
+   		ELSE "B2B"
+    END as segment,
+    country,
+    COUNT (*) as num_customer
+FROM customers
+GROUP by segment, country;
+```
+
+HAVING filter Group(รันจาก GRUOP BY)/ WHERE filter table(รันก่อน GROUP BY)
+
+```sql
+SELECT 
+    CASE
+    	WHEN company IS NULL THEn "B2C"
+   		ELSE "B2B"
+    END as segment,
+    country,
+    COUNT (*) as num_customer
+FROM customers
+WHERE country IN ("Belgium", "France", "Italy")
+GROUP by segment, country
+HAVING num_customers > 1 ;
+```
+
+Order by + หารเพลงให้มีทศนิยม
+
+```sql
+SELECT 
+	name, 
+    ROUND(milliseconds/60000.0,2) AS minute
+FROM tracks
+ORDER By minute DESC
+LIMIT 5;
+```
+
+Inner JOIN
+
+```sql
+SELECT * 
+FROM artists AS ar
+JOIN albums	as al
+--table.column = table.column
+on ar.artistid = al.artistid;
+```
+
+**JOIN table**
+
+```sql
+SELECT
+	ar.name AS artist_name,
+    al.title AS album_name,
+    tr.name AS track_name
+FROM artists AS ar
+INNER JOIN albums	as al
+	on ar.artistid = al.artistid
+INNER JOIN tracks as tr
+	on tr.albumid = al.artistid
+;
+```
+
+```sql
+SELECT
+	ge.name,
+    COUNT(*) as count_track,
+    AVG(milliseconds) AS avg_milliseconds
+FROM artists AS ar
+INNER JOIN albums	as al
+	on ar.artistid = al.artistid
+INNER JOIN tracks as tr
+	on tr.albumid = al.artistid
+INNER JOIN genres as ge
+	on ge.genreid = tr.genreid
+GROUP BY ge.name --เขียน 1 แทนก็ได้ (table1)
+ORDER By 3 DESC
+LIMIt 5
+;
+```
+
+Vietual view ข้อมูลจะอัพเดท ในมุม user มันก็คือการเอาโค้ดมารันใหม่ ไม่เกี่ยวกับ solid table
+
+```sql
+--virtual table => view
+CREATE VIEW genre_stats as 
+SELECT
+	ge.name,
+    COUNT(*) as count_track,
+    AVG(milliseconds) AS avg_milliseconds
+FROM artists AS ar
+INNER JOIN albums	as al
+	on ar.artistid = al.artistid
+INNER JOIN tracks as tr
+	on tr.albumid = al.artistid
+INNER JOIN genres as ge
+	on ge.genreid = tr.genreid
+GROUP BY ge.name
+ORDER By 3 DESC
+LIMIt 5
+;
+```
+
+```sql
+SELECT * FROM genre_stats
+WHERE name = "Rock"
+```
+
+Subqueries (Select ซ้อน Select)
+
+```sql
+--subqueries
+SELECT firstname, country	
+FROM (SELECT * FROM customers) AS sub
+WHERE country = "United Kingdom";
+
+--WITH : common table expression
+WITH sub AS (
+	SELECT * FROM customers
+)
+SELECT firstname, country
+FROM sub
+WHERE country = "United Kingdom"
+```
+
+```sql
+SELECT 
+	firstname,
+	lastname,
+	email,
+	COUNT(*) AS count_order
+FROM customers AS c
+JOIN invoices AS i
+ON c.customerid = i.customerid
+WHERE country="USA" AND STRFTIME ("%Y-%m",i.invoicedate) = "2009-10"
+GROUP BY 1,2,3
+```
+
+```sql
+--subqueries
+SELECT 
+	firstname,
+	lastname,
+	email,
+	COUNT(*) AS count_order
+FROM customers AS c
+JOIN invoices AS i
+ON c.customerid = i.customerid
+WHERE c.country="USA" AND STRFTIME ("%Y-%m",i.invoicedate) = "2009-10"
+GROUP BY 1,2,3;
+
+--with clauses 
+WITH usa_customers AS (
+	SELECT * FROM customers
+  	WHERE country="USA"
+),
+	invoice_2009 AS (
+	SELECT * FROM invoices
+    WHERE STRFTIME ("%Y-%m",invoicedate) = "2009-10"
+)
+SELECT 
+	firstname, 
+	COUNT(*)
+FROM usa_customers AS t1
+JOIN invoice_2009  AS t2
+on t1.customerid = t2.customerid;
+```
+
+```sql
+SELECT
+	firstname,
+    email
+FROM (SELECT * FROM customers)
+WHERE email LIKE "%@yahoo.%"
+```
