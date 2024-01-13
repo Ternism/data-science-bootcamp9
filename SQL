@@ -1,4 +1,4 @@
-composit key ตาราง bridge
+#5 SQL Database
 
 ```sql
 SELECT firstname, lastname, company FROM customers;
