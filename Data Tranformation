@@ -1,0 +1,231 @@
+## #7 Data ****Transformation****
+
+command line ใน terminal (linux)
+
+- echo ปริ้น
+- pwd ตอนนี้อยู่ไฟล์อันไหน
+- ls ลิสต์ไฟล์ ls -a เอาไฟล์ทั้งหมด รวมไฟล์ซ่อน (ชื่อขึ้นต้นด้วย .)
+- สร้างไฟล์ใหม่ touch animal.txt หรือ hello.r
+- สร้างโฟลเดอร์ใหม่ mkdir
+- ย้ายตัวเราไปอยู่ที่อื่น cd
+- ย้ายตัวเรากลับมาอยู่ที่เดิม cd ..
+- ย้ายกลับไป 2 steps cd ../..
+- เพิ่มข้อมูลในไฟล์ echo dog > animal.txt
+- เพิ่มข้อมูลในไฟล์เพิ่มอีก echo cat >> animal.txt
+- ดูว่าในไฟล์นั้นมีอะไรบ้าง cat animal.txt
+- ลบไฟล์ rm animal.txt
+- ลบทุกไฟล์ที่อยู่ในโฟลเดอร์นั้น rm -r movie
+- ลบโฟลเดอร์ rmdir movie
+- รันโค้ดที่อยู่ในไฟล์ Rscript work.R
+- DB ในชีวิตจริง เป็น software ที่รันบน server
+
+tidyverse glue RSQLite RPostgreSQL lubridate
+
+glue 
+
+```r
+#glue message
+my_name <- "tern"
+my_age <- 20
+
+glue("Hi! my name is {my_name}. Today I'm {my_age} years old.")
+```
+
+tidyverse
+     #data transformation => dplyr
+
+1. select - select(mtcars, starts_with("a")) ends_with(””) contains(””)
+2. filter - `filter(mtcars, hp > 200 & mpg >= 15)` 
+3. arrange
+4. arrange
+5. summarise
+
+data frame ใน r `view(mtcars)` ที่ console 
+
+rownames(mtcars)
+
+colnames(mtcars)
+
+```r
+mtcars <- rownames_to_column(mtcars, “model”)
+```
+
+rownames_to_column(mtcars, “model”) ทำให้ col แรกเป็นผลลัพธ์
+
+```
+> m1 <- select(mtcars, mpg, hp, wt)
+> view(m1)
+
+#data pipeline ผลออกมาเหมือนข้างบน
+> mtcars %>% 
+		select(mpg, hp, wt)
+```
+
+```r
+mtcars %>%
+	select(mpg, hp, wt) %>%    
+	head(5)                                                                                                                                                            )
+```
+
+filter (ใช้แทน select)
+
+`filter(mtcars, hp > 200 & mpg >= 15)`  และ
+
+`filter(mtcars, hp > 200 | mpg >= 15)` หรือ
+
+```r
+mtcars %>% 
+	filter(mtcars, hp > 200 & mpg >= 15)
+```
+
+```
+> grep("^A", state.name, value = T)
+[1] "Alabama"  "Alaska"   "Arizona"
+```
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/62b764cd-f8a9-4508-9e84-f8c548f32db1/c14549ae-aa7a-45a2-b462-6e70f1c707b7/Untitled.png)
+
+grep/ grepl ?
+
+```r
+mtcars %>% 
+  select(mpg, hp, wt, am) %>%
+  filter(between(hp, 150, 200))
+```
+
+Arrange
+
+```r
+mtcars %>% 
+  select(model, mpg, hp, wt, am) %>%
+  filter(between(hp, 150, 200)) %>%
+  arrange(am, desc(hp))
+```
+
+Mutate 
+
+```r
+mtcars %>%
+  select(model, mpg, hp, wt) %>%
+  filter(mpg >= 20) %>%
+  mutate(model_upper = toupper(model)),
+        (mpg_double = mpg*2),
+        (mpg_hahaha = mpg_double+10)
+```
+
+```r
+mtcars %>%
+  select(model, mpg, hp, wt) %>%
+  filter(mpg >= 20) %>%
+  mutate(am = if_else(am==0, "auto", "manual")
+```
+
+Summarise 
+
+```r
+mtcars %>%
+  summarise(avg_mpg = mean(mpg),
+          sum_mpg = sum(mpg),
+					var_hp = var(hp),
+					sd_hp = sd(hp),
+          n = n())
+```
+
+Group by
+
+```r
+mtcars %>%
+mutate(am = if_else(am==0,
+										"Auto","Manual")) %>%
+group by(am) %>%
+summarise(avg_mpg = mean(mpg),
+          sum_mpg = sum(mpg),
+					var_hp = var(hp),
+					sd_hp = sd(hp),
+          n = n())
+```
+
+Join
+
+```r
+left_join(band_members, band_instruments)
+```
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/62b764cd-f8a9-4508-9e84-f8c548f32db1/e20fb7d6-278b-44d1-8723-28d820edd0c4/Untitled.png)
+
+ในกรณีที่ชื่อไม่ตรงกัน c(”member_name” = “name”) pk = fk
+
+Sampling
+
+```r
+mtcars %>% 
+	sample_n(5)
+	pull(model) #ค่าออกมาเป็น vector
+```
+
+```r
+mtcars %>%
+	sample_frac(0.2) %>%
+	summarise(avg_hp = mean(hp))
+```
+
+Count
+
+```r
+mtcars <- mtcars %>%
+mutate(am = if_else(am==0,
+										"Auto","Manual"))
+mtcars %>%
+	count(am)
+		mutate(pct = n/sum(n))
+```
+
+homework
+
+library(nycflights13)
+library(tidyverse)
+
+data(flights)
+
+```r
+install.packages("sqldf")
+
+library(sqldf)
+```
+
+```r
+sqldf("select mpg, hp from mtcars where hp >=200")
+```
+
+Connect to database
+
+```r
+library(RSQLite)
+
+#connect to sqlite.db file
+con <- dbConnect(SQLite(), "chinook.db")
+
+#list tables
+dbListTables(con)
+
+#list fields/ columns
+dbListFields(con, "customers")
+
+#get data from database tables
+dbGetQuery(con, "select firstname, email from customers where country = 'USA'")
+
+library(tidyverse)
+
+#create dataframe
+products <- tribble(
+  ~id, ~product_name,
+  1, "chocolate",
+  2, "pineapple",
+  3, "samsung"
+)
+
+#write table to database
+dbWriteTable(con, "products", products)
+```
+
+สร้าง server database
