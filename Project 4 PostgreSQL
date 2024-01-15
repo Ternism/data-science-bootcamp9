@@ -1,0 +1,52 @@
+## connect PostgreSQL server
+install.packages("RPostgreSQL")
+
+library(RPostgreSQL)
+library(tidyverse)
+
+#create connection
+con <- dbConnect(
+  PostgreSQL(),
+  host = "floppy.db.elephantsql.com",
+  dbname = "lxqammfu",
+  user = "lxqammfu",
+  password = "aMIYP2MY2KW4XhFV-Q9wnilYpI16QPn",
+  port = 5432
+)
+
+## Pizza Restaurant on SQL (Replit)
+## write table into server
+customers <- tribble(
+  ~customerid, ~firstname, ~lastname, ~address,
+  1, 'John', 'Doe', 'Ekkamai',
+  2, 'Jane', 'Smith','Ekkamai',
+  3, 'David', 'Johnson', 'Thonglor',
+  4, 'Emily', 'Williams', 'Prompong',
+  5, 'Michael', 'Brown', 'Thonglor'
+)
+
+menu <- tribble(
+  ~menuid, ~itemname, ~price,
+  1, 'Pepperoni', 299,
+  2, 'Vegetarian', 289,
+  3, 'Meat Lovers', 319,
+  4, 'Hawaiian', 319,
+  5, 'Supreme', 299
+)
+
+orders <- tribble(
+  ~order_id, ~orderdate, customerid, ~menuid, ~quantities,
+	1, '2023-01-02', 1, 1, 4,
+  2, '2023-01-03', 5, 3, 6,
+  3, '2023-01-03', 3, 2, 5,
+  4, '2023-01-06', 4, 1, 5,
+  5, '2023-01-06', 2, 4, 9,
+  6, '2023-01-06', 1, 1, 3,
+  7, '2023-01-07', 4, 3, 6
+)
+
+dbWriteTable(con, "customers", customers)
+dbWriteTable(con, "menu", menu)
+dbWriteTable(con, "orders", orders)
+
+dbDisconnect(con)
