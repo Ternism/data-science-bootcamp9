@@ -1,0 +1,51 @@
+menu_df = data.frame(
+  order_name = c("Pepperoni", "Vegetarian", "Meat Lovers", "Hawaiian", "Supreme"),
+  price = c(299, 289, 319, 319, 299)
+)
+
+pizza_chatbot = function(){
+  # Welcome dialogue
+  print("Welcome to Pizza Tern! 🍕")
+  print("Would you like to take a look at our menu first?, This our menu today 😁")
+  for (i in seq_len(nrow(menu_df))) {
+    cat(i,".", menu_df$order_name[i], ">", menu_df$price[i], "\n")
+  }
+  print("Place an order!")
+  flush.console()
+
+  # Record data (user order)
+  user_order_df = data.frame(
+    order_name = c(),
+    price = c()
+  )
+
+  # Loop Question for order menu
+  while(TRUE){
+    # ask user for order
+    user_order = readline("Order (Follow menu's name) > ")
+
+    # record order from user
+    order_price = menu_df[menu_df$order_name == user_order, ][['price']]
+    new_record = list(order_name= user_order , price=order_price)
+    user_order_df = rbind(user_order_df, data.frame(new_record))
+
+    # ask for more order
+    more_order =  readline("Do you want to order something more?(yes, no) >")
+    if (more_order == "no") {break}
+  }
+  # Ask location
+  user_location = readline("Great! We've got your order down.
+  To ensure a swift delivery, could you please provide your delivery address? >")
+
+  # End dialogue
+  print("Perfect, thank you!")
+  print("Your order is")
+  print(user_order_df)
+  flush.console()
+  print(paste("total >", sum(user_order_df[['price']])))
+  print("Your estimated delivery time is about 30 minutes..
+  If you have any questions or need assistance later, feel free to ask. Enjoy your meal! 🍕😊")
+
+}
+
+pizza_chatbot()
