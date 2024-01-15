@@ -1,0 +1,58 @@
+rule = function(player_choice, computer_choice){
+  if (player_choice == computer_choice) {
+      print("It's a tie!")
+      player_score = 0
+      computer_score = 0
+        }  else if (player_choice == "rock" && computer_choice == "paper") {
+          print("You lose! The computer chose paper.")
+          player_score = 0
+          computer_score = 1
+        } else if (player_choice == "rock" && computer_choice == "scissors") {
+          print("You win! The computer chose scissors.")
+          player_score = 1
+          computer_score = 0
+        } else if (player_choice == "paper" && computer_choice == "rock") {
+          print("You win! The computer chose rock.")
+          player_score = 1
+          computer_score = 0
+        } else if (player_choice == "paper" && computer_choice == "scissors") {
+          print("You lose! The computer chose scissors.")
+          player_score = 0
+          computer_score = 1
+        } else if (player_choice == "scissors" && computer_choice == "rock") {
+          print("You lose! The computer chose rock.")
+          player_score = 0
+          computer_score = 1
+        } else if (player_choice == "scissors" && computer_choice == "paper") {
+          print("You win! The computer chose paper.")
+          player_score = 1
+          computer_score = 0
+        }
+  score_list = list(
+    "player_score" = player_score,
+    "computer_score" = computer_score
+  )
+}
+
+game = function(){
+  player_score = 0
+  computer_score = 0
+  while(TRUE) {
+      # player input
+      player_choice <- readline("Enter your choice (rock, paper, or scissors): ")
+      # sample choice (bot)
+      computer_choice <- sample(c("rock", "paper", "scissors"), 1)
+      # check result follow rule (function)
+      result = rule(player_choice, computer_choice)
+      flush.console()
+      # summation score
+      player_score = player_score + result[['player_score']]
+      computer_score = computer_score+ result[['computer_score']]
+      # play agian
+      play_again = readline("Do you want to play again (yes, no): ")
+      if (play_again == "no"){break}
+  }
+  print(paste("Humankind score = ", player_score))
+  print(paste("AI score = ",computer_score))
+}
+game()
