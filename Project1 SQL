@@ -1,0 +1,91 @@
+.print "welecome to our mini pizza restaurant which baked with love and care <3";
+
+--Insert 5 rows into the 'customers' table with the following data:
+CREATE TABLE customers (
+  customerid INT PK,
+  firstname TEXT ,
+  lastname TEXT ,
+  address TEXT);
+
+INSERT INTO customers 
+VALUES (1, 'John', 'Doe', 'Ekkamai'),
+       (2, 'Jane', 'Smith','Ekkamai'),
+       (3, 'David', 'Johnson', 'Thonglor'),
+       (4, 'Emily', 'Williams', 'Prompong'),
+       (5, 'Michael', 'Brown', 'Thonglor'
+);
+.mode box
+.print
+SELECT * FROM customers;
+
+--Create a table called 'menu' with the following columns:
+CREATE TABLE menu (
+  menuid INT PK,
+  itemname TEXT,
+  price INT);
+
+INSERT INTO menu
+VALUES (1, 'Pepperoni', 12.99),
+       (2, 'Vegetarian', 11.99),
+       (3, 'Meat Lovers', 14.99),
+       (4, 'Hawaiian', 13.99),
+       (5, 'Supreme', 15.99
+);
+.mode box
+.print
+SELECT * FROM menu;
+
+--Create a table called 'orders' with the following columns:
+CREATE TABLE orders (
+  orderid INT PK,
+  orderdate date,
+  customerid INT,
+  menuid INT,
+  quantities INT);
+
+INSERT INTO orders
+VALUES (1, '2023-01-02', 1, 1, 3),
+       (2, '2023-01-03', 5, 3, 2),
+       (3, '2023-01-03', 3, 2, 5),
+       (4, '2023-01-06', 4, 1, 1),
+       (5, '2023-01-06', 2, 4, 4),
+       (6, '2023-01-06', 1, 1, 3),
+       (7, '2023-01-07', 4, 3, 2
+);
+.mode box
+.print
+SELECT * FROM orders;
+
+.print "Whats our most popular menu?"
+SELECT m.itemname, 
+  SUM(o.quantities) AS total_quantity , 
+  SUM(o.quantities * m.price) AS total_price
+FROM orders o
+LEFT JOIN menu m ON o.menuid = m.menuid
+GROUP BY m.itemname
+ORDER BY total_price DESC
+LIMIT 3;
+
+.print "Whats total purchase of each customer?"
+SELECT
+  customers.firstname,
+  customers.lastname,
+  COUNT(*) AS count_order
+FROM orders 
+JOIN customers 
+  ON orders.customerid = customers.customerid
+GROUP BY orders.customerid
+ORDER BY count_order DESC;
+
+.print "Who bought item on 2023-01-06"
+SELECT 
+    firstname,
+    lastname,
+    orderdate,
+    COUNT(*) AS total_food
+FROM orders AS O    
+LEFT JOIN customers as C 
+  ON O.customerid = C.customerid
+WHERE orderdate = '2023-01-06'
+GROUP BY firstname, lastname, orderdate;
+
