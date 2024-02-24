@@ -1,0 +1,84 @@
+OOP = Object Oriented Programming
+class DataAnalyst
+
+class DataAnalyst:
+    def __init__(self, name, age, skill, email):
+        self.name = name,
+        self.age = age,
+        self.skill = skill,
+        self.email = email
+
+    def greeting(self):
+        print(f"Hello, my name is {self.name}, I'm {self.age} years old.")
+        print(f"My skills for Data Analyst: {self.skill}.")
+        print(f"You can contact me by {self.email}.")
+
+    def addskill(self, newskill):
+        print("--------------------------------------")
+        print(f"My new skill: {newskill}.")
+        self.skill = str(self.skill) + ", " + newskill
+        print(f"My skills for Data Analyst: {self.skill}")
+
+Me = DataAnalyst ("Tern", 20 , "Spreadsheets SQL R", "tns.bieber@gmail.com")
+Me.greeting()
+Me.addskill("Python")
+
+class ATM
+
+from random import randint
+import numpy as np
+
+class ATM:
+    def __init__ (self, account_name, bank_name, balance):
+        self.account_name = account_name
+        self.bank_name = bank_name
+        self.balance = balance
+
+    ## def 6 function
+    def __str__ (self) :
+        return f"This is an account of {self.account_name}, bank: {self.bank_name}"
+
+    def check_balance(self) :
+        print(f"Balance: {self.balance} THB")
+
+    def deposit(self, money) :
+        self.balance += money
+        print(f"Deposit successfully: your new balance: {self.balance} THB")
+
+    def withdraw(self, money) :
+        self.balance -= money
+        print(f"Withdraw successfully: your new balance: {self.balance} THB")
+
+    def get_OTP(self):
+        otp = randint(1000, 9999)
+        return otp
+        print(f"Your OTP: {otp} This OTP will be available in the next 2 minutes")
+
+    def change_account_name(self):
+        current_account_name = input("Enter your current account name: ")
+        if current_account_name != self.account_name:
+            print("Incorrect account name, process canceled.")
+
+            return
+
+        send_otp = self.get_OTP()
+        comfirm_otp = int(input("Enter the OTP received: "))
+
+        if comfirm_otp == send_otp :
+            new_account_name = input("Enter your new account name: ")
+            self.account_name = new_account_name
+            print(f"updated successfully. New account name is: {self.account_name}")
+        else:
+            print("OTP not correct. change account name canceled.")
+
+
+## create first account into ATM class
+acc1 = ATM("tern", "kbank", 1000)
+
+print(acc1)
+
+acc1.deposit(5000)
+
+acc1.change_account_name() #wrong input current account name
+
+acc1.change_account_name() #wrong input OTP
